@@ -909,7 +909,7 @@ bool CAdminGame::EventPlayerBotCommand(CGamePlayer *player, std::string command,
 
                     if (!exists(MapCFGPath))
                     {
-                        CONSOLE_Print("[ADMINGAME] error listing map configs - map config std::filesystem::path doesn't exist");
+                        CONSOLE_Print("[ADMINGAME] error listing map configs - map config path doesn't exist");
                         SendChat(player, m_GHost->m_Language->ErrorListingMapConfigs());
                     }
                     else
@@ -1020,7 +1020,7 @@ bool CAdminGame::EventPlayerBotCommand(CGamePlayer *player, std::string command,
 
                     if (!exists(MapPath))
                     {
-                        CONSOLE_Print("[ADMINGAME] error listing maps - map std::filesystem::path doesn't exist");
+                        CONSOLE_Print("[ADMINGAME] error listing maps - map path doesn't exist");
                         SendChat(player, m_GHost->m_Language->ErrorListingMaps());
                     }
                     else

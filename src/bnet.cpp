@@ -568,7 +568,7 @@ bool CBNET::Update(void *fd, void *send_fd)
         if (!m_OutPackets.empty() && GetTicks() - m_LastOutPacketTicks >= WaitTicks)
         {
             if (m_OutPackets.size() > 7)
-                CONSOLE_Print("[BNET: " + m_ServerAlias + "] packet std::queue warning - there are " + UTIL_ToString(m_OutPackets.size()) + " packets waiting to be sent");
+                CONSOLE_Print("[BNET: " + m_ServerAlias + "] packet queue warning - there are " + UTIL_ToString(m_OutPackets.size()) + " packets waiting to be sent");
 
             m_Socket->PutBytes(m_OutPackets.front());
             m_LastOutPacketSize = m_OutPackets.front().size();
@@ -826,7 +826,7 @@ void CBNET::ProcessPackets()
                     }
                     else
                     {
-                        CONSOLE_Print("[BNET: " + m_ServerAlias + "] logon failed - bncsutil key hash failed (check your Warcraft 3 std::filesystem::path and cd keys), disconnecting");
+                        CONSOLE_Print("[BNET: " + m_ServerAlias + "] logon failed - bncsutil key hash failed (check your Warcraft 3 path and cd keys), disconnecting");
                         m_Socket->Disconnect();
                         delete Packet;
                         return;
@@ -1774,7 +1774,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
 
                             if (!exists(MapCFGPath))
                             {
-                                CONSOLE_Print("[BNET: " + m_ServerAlias + "] error listing map configs - map config std::filesystem::path doesn't exist");
+                                CONSOLE_Print("[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist");
                                 QueueChatCommand(m_GHost->m_Language->ErrorListingMapConfigs(), User, Whisper, WhisperResponses);
                             }
                             else
@@ -1885,7 +1885,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
 
                             if (!exists(MapPath))
                             {
-                                CONSOLE_Print("[BNET: " + m_ServerAlias + "] error listing maps - map std::filesystem::path doesn't exist");
+                                CONSOLE_Print("[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist");
                                 QueueChatCommand(m_GHost->m_Language->ErrorListingMaps(), User, Whisper, WhisperResponses);
                             }
                             else
@@ -2412,7 +2412,7 @@ void CBNET::QueueChatCommand(std::string chatCommand, bool hidden)
             chatCommand = chatCommand.substr(0, 255);
 
         if (m_OutPackets.size() > 10)
-            CONSOLE_Print("[BNET: " + m_ServerAlias + "] attempted to std::queue chat command [" + chatCommand + "] but there are too many (" + UTIL_ToString(m_OutPackets.size()) + ") packets std::queued, discarding");
+            CONSOLE_Print("[BNET: " + m_ServerAlias + "] attempted to queue chat command [" + chatCommand + "] but there are too many (" + UTIL_ToString(m_OutPackets.size()) + ") packets queued, discarding");
         else
         {
             bool whisper = false;

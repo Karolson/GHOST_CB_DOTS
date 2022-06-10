@@ -23,6 +23,7 @@
 #include "config.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
+#include "gpsprotocol.h"
 #include "gcbiprotocol.h"
 #include "ghost.h"
 #include "ghostdb.h"
@@ -274,6 +275,7 @@ CBaseGame::~CBaseGame()
         m_GHost->m_StatusBroadcaster->SendGame(NULL);
 
     //rehosting stuff
+    /*
     std::ofstream StatusFile;
     StatusFile.open("online.txt", std::ios::trunc);
     if (!StatusFile.fail())
@@ -284,6 +286,7 @@ CBaseGame::~CBaseGame()
         StatusFile << true << std::endl;
         StatusFile.close();
     }
+    */
 
     // save replay
     // todotodo: put this in a thread
@@ -306,16 +309,16 @@ CBaseGame::~CBaseGame()
         if (SecString.size() == 1)
             SecString.insert(0, "0");
 
-        int mins = atoi(MinString.c_str());
+        //int mins = atoi(MinString.c_str());
 
         std::filesystem::path dir(m_GHost->m_ReplayPath + std::string(Time2));
         std::filesystem::create_directory(dir);
 
-        if (mins > 10)
-        {
+        //if (mins > 10)
+        //{
             m_Replay->BuildReplay(m_GameName, m_StatString, m_GHost->m_ReplayWar3Version, m_GHost->m_ReplayBuildNumber);
             m_Replay->Save(m_GHost->m_TFT, m_GHost->m_ReplayPath + std::string(Time2) + "\\" + UTIL_FileSafeName(std::string(Time) + " DOTS [" + m_GHost->m_Map->GetMapLocalPath() + "][" + MinString + "m" + SecString + "s].w3g"));
-        }
+        //}
     }
 
     delete m_Socket;
@@ -1167,7 +1170,7 @@ bool CBaseGame::Update(void *fd, void *send_fd)
 
     //expire !dance
 
-    if (m_StartedDanceTime != 0 && GetTime() - m_StartedDanceTime >= 60)
+    if (m_StartedDanceTime != 0 && GetTime() - m_StartedDanceTime >= 15)
     {
         m_StartedDanceTime = 0;
     }
@@ -1191,6 +1194,7 @@ bool CBaseGame::Update(void *fd, void *send_fd)
         SendAllChat("DaNcE dAnCe DaNcE dAnCe DaNcE ");
     }
 
+    /*
     // ###write online file###
 
     if (m_GameNeedUpdateStatusOnline == true)
@@ -1270,16 +1274,6 @@ bool CBaseGame::Update(void *fd, void *send_fd)
         m_GameNeedUpdateStatusOnline = false;
     }
 
-    //new_loading_status = m_GameLoading;
-    //new_loaded_status = m_GameLoaded;
-
-    //check if need update for STATUS file (online.txt) - number of players and status
-    /*
-        if( (new_loading_status != old_loading_status) || (new_loaded_status != old_loaded_status) ) //status was changed
-        {
-            m_GameNeedUpdateStatusHost = true;
-        }*/
-
     //detected changes in status, need update
     //write status file
     if (m_GameNeedUpdateStatusHost == true)
@@ -1297,36 +1291,16 @@ bool CBaseGame::Update(void *fd, void *send_fd)
         }
         m_GameNeedUpdateStatusHost = false;
     }
-
-    //check if need update for players file (players.txt) - slots and names
-    /*for(int i = 0; i < m_Slots.size( ); i++)
-        {
-            if(m_GameSlotsStatuses[i] != old_online[i])
-                m_GameNeedUpdateStatusOnline= 1;
-        }*/
-
-    //detected changes in player list, need update
-    //write online file
-
-    //save current status for next check
-    //old_loading_status = new_loading_status;
-    //old_loaded_status = new_loaded_status;
-
-    //save current online for next check
-    //for(int i = 0; i < m_Slots.size(); i++)
-    //	old_online[i] = m_GameSlotsStatuses[i];
-
-    //count_for_online = 0;
-
-    //count_for_online++;
+    */
 
     // start the gameover timer if there's only one player left
-
-    /*if( m_Players.size( ) == 1 && m_FakePlayerPID == 255 && m_GameOverTime == 0 && ( m_GameLoading || m_GameLoaded ) )
+    /*
+    if( m_Players.size( ) == 1 && m_FakePlayerPID == 255 && m_GameOverTime == 0 && ( m_GameLoading || m_GameLoaded ) )
     {
         CONSOLE_Print( "[GAME: " + m_GameName + "] gameover timer started (one player left)" );
         m_GameOverTime = GetTime( );
-    }*/
+    }
+    */
 
     bool lessthanminpercent                  = false;
     [[maybe_unused]] bool lessthanminplayers = false;
@@ -1638,7 +1612,7 @@ void CBaseGame::SendAllActions()
 
     if (!m_Actions.empty())
     {
-        // we use a "sub actions std::queue" which we keep adding actions to until we reach the size limit
+        // we use a "sub actions queue" which we keep adding actions to until we reach the size limit
         // start by adding one action to the sub actions std::queue
 
         std::queue<CIncomingAction *> SubActions;
@@ -1938,6 +1912,15 @@ void CBaseGame::EventPlayerDeleted(CGamePlayer *player)
     if (m_GHost->m_TCPStatus && m_GHost->m_StatusBroadcaster != NULL)
         //m_GHost->m_StatusBroadcaster->SendNump(m_GHost->GetGame()); // рассылаем количество игроков
         m_GHost->m_StatusBroadcaster->SendGame(m_GHost->GetGame());
+
+    for (std::vector<CGamePlayer *>::iterator i = m_Players.begin(); i != m_Players.end(); i++)
+    {
+        if ((*i)->GetGProxy())
+        {
+            (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_PARTYSIZE(GetNumHumanPlayersFromSlots()));
+            (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_PARTYMAX(GetSlots().size()));
+        }
+    }
 }
 
 void CBaseGame::EventPlayerDisconnectTimedOut(CGamePlayer *player)
@@ -2577,6 +2560,15 @@ void CBaseGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlay
     if (m_GHost->m_TCPStatus && m_GHost->m_StatusBroadcaster != NULL)
         //m_GHost->m_StatusBroadcaster->SendNump(m_GHost->GetGame()); // рассылаем количество игроков
         m_GHost->m_StatusBroadcaster->SendGame(m_GHost->GetGame());
+
+    for (std::vector<CGamePlayer *>::iterator i = m_Players.begin(); i != m_Players.end(); i++)
+    {
+        if ((*i)->GetGProxy())
+        {
+            (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_PARTYSIZE(GetNumHumanPlayersFromSlots()));
+            (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_PARTYMAX(GetSlots().size()));
+        }
+    }
 }
 
 void CBaseGame::EventPlayerJoinedWithScore(CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer, double score)
@@ -3866,13 +3858,13 @@ void CBaseGame::EventGameStarted()
                 }
 
                 SendAllSlotInfo();
-                CONSOLE_Print("[GAME: " + m_GameName + "] successfully encoded HCL command std::string [" + m_HCLCommandString + "]");
+                CONSOLE_Print("[GAME: " + m_GameName + "] successfully encoded HCL command string [" + m_HCLCommandString + "]");
             }
             else
-                CONSOLE_Print("[GAME: " + m_GameName + "] encoding HCL command std::string [" + m_HCLCommandString + "] failed because it contains invalid characters");
+                CONSOLE_Print("[GAME: " + m_GameName + "] encoding HCL command string [" + m_HCLCommandString + "] failed because it contains invalid characters");
         }
         else
-            CONSOLE_Print("[GAME: " + m_GameName + "] encoding HCL command std::string [" + m_HCLCommandString + "] failed because there aren't enough occupied slots");
+            CONSOLE_Print("[GAME: " + m_GameName + "] encoding HCL command string [" + m_HCLCommandString + "] failed because there aren't enough occupied slots");
     }
 
     // send a final slot info update if necessary
@@ -3910,6 +3902,40 @@ void CBaseGame::EventGameStarted()
     if (m_FakePlayerPID != 255)
         SendAll(m_Protocol->SEND_W3GS_GAMELOADED_OTHERS(m_FakePlayerPID));
 
+    // send Discord rich presence
+
+    const auto p1 = std::chrono::system_clock::now();
+    const auto epoch = std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count();
+    for (std::vector<CGamePlayer *>::iterator i = m_Players.begin(); i != m_Players.end(); i++)
+    {
+        if ((*i)->GetGProxy())
+        {
+            (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_STATE("Loading..."));
+            (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_STARTTIMESTAMP(epoch));
+
+            if (GetSIDFromPID((*i)->GetPID()) < 5) 
+            {
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_SMALLIMAGEKEY("hakurei"));
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_SMALLIMAGETEXT("Hakurei"));
+            }
+            else if (GetSIDFromPID((*i)->GetPID()) == 5) 
+            {
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGEKEY("hakurei"));
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGETEXT("Hakurei"));
+            }
+            else if (GetSIDFromPID((*i)->GetPID()) < 11) 
+            {
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_SMALLIMAGEKEY("moriya"));
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_SMALLIMAGETEXT("Moriya"));
+            }
+            else if (GetSIDFromPID((*i)->GetPID()) == 11) 
+            {
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGEKEY("moriya"));
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGETEXT("Moriya"));
+            }
+        }
+    }
+    
     // record the starting number of players
 
     m_StartPlayers = GetNumHumanPlayers();
@@ -4086,6 +4112,21 @@ void CBaseGame::EventGameLoaded()
     if (m_GHost->m_TCPStatus && m_GHost->m_StatusBroadcaster != NULL)
         //m_GHost->m_StatusBroadcaster->SendName(m_GHost->GetGame()); // рассылаем новый статус
         m_GHost->m_StatusBroadcaster->SendGame(m_GHost->GetGame());
+
+    for (std::vector<CGamePlayer *>::iterator i = m_Players.begin(); i != m_Players.end(); i++)
+    {
+        if ((*i)->GetGProxy())
+        {
+            if (GetSIDFromPID((*i)->GetPID()) != 5 && GetSIDFromPID((*i)->GetPID()) != 11) 
+            {
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_STATE("Picking their girl"));
+            }
+            else
+            {
+                (*i)->Send(m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_STATE("Watching a game"));
+            }
+        }
+    }
 }
 
 unsigned char CBaseGame::GetSIDFromPID(unsigned char PID)

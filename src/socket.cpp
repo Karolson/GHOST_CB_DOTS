@@ -32,18 +32,20 @@ int GetLastError() { return errno; }
 // CSocket
 //
 
-CSocket::CSocket()
+CSocket::CSocket(std::string nName)
 {
     m_Socket = INVALID_SOCKET;
     memset(&m_SIN, 0, sizeof(m_SIN));
     m_HasError = false;
     m_Error    = 0;
+    m_Name     = nName;
 }
 
-CSocket::CSocket(SOCKET nSocket, struct sockaddr_in nSIN)
+CSocket::CSocket(SOCKET nSocket, struct sockaddr_in nSIN, std::string nName)
 {
     m_Socket   = nSocket;
     m_SIN      = nSIN;
+    m_Name     = nName;
     m_HasError = false;
     m_Error    = 0;
 }
@@ -153,6 +155,11 @@ std::string CSocket::GetErrorString()
     return "UNKNOWN ERROR (" + UTIL_ToString(m_Error) + ")";
 }
 
+std::string CSocket::GetName()
+{
+    return m_Name;
+}
+
 void CSocket::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
 {
     if (m_Socket == INVALID_SOCKET)
@@ -195,7 +202,7 @@ void CSocket::Reset()
 // CTCPSocket
 //
 
-CTCPSocket::CTCPSocket() : CSocket()
+CTCPSocket::CTCPSocket(std::string nName) : CSocket(nName)
 {
     Allocate(SOCK_STREAM);
     m_Connected = false;
@@ -212,7 +219,7 @@ CTCPSocket::CTCPSocket() : CSocket()
 #endif
 }
 
-CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN) : CSocket(nSocket, nSIN)
+CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN, std::string nName) : CSocket(nSocket, nSIN, nName)
 {
     m_Connected = true;
     m_LastRecv  = GetTime();
@@ -293,7 +300,8 @@ void CTCPSocket::DoRecv(fd_set *fd)
 
             m_HasError = true;
             m_Error    = GetLastError();
-            CONSOLE_Print("[TCPSOCKET] error (recv) - " + GetErrorString());
+            if (GetName() != "status")
+                CONSOLE_Print("[TCPSOCKET] error (recv) - " + GetErrorString());
             return;
         }
         else if (c == 0)
@@ -402,7 +410,7 @@ CTCPStatusBroadcasterSocket::~CTCPStatusBroadcasterSocket()
 // CTCPClient
 //
 
-CTCPClient::CTCPClient() : CTCPSocket()
+CTCPClient::CTCPClient(std::string nName) : CTCPSocket(nName)
 {
     m_Connecting = false;
 }
@@ -526,7 +534,7 @@ bool CTCPClient::CheckConnect()
 // CTCPServer
 //
 
-CTCPServer::CTCPServer() : CTCPSocket()
+CTCPServer::CTCPServer(std::string nName) : CTCPSocket(nName)
 {
     // set the socket to reuse the address in case it hasn't been released yet
 
@@ -617,7 +625,7 @@ CTCPSocket *CTCPServer::Accept(fd_set *fd)
 // CUDPSocket
 //
 
-CUDPSocket::CUDPSocket() : CSocket()
+CUDPSocket::CUDPSocket(std::string nName) : CSocket(nName)
 {
     Allocate(SOCK_DGRAM);
 
@@ -738,7 +746,7 @@ void CUDPSocket::SetDontRoute(bool dontRoute)
 // CUDPServer
 //
 
-CUDPServer::CUDPServer() : CUDPSocket()
+CUDPServer::CUDPServer(std::string nName) : CUDPSocket(nName)
 {
     // make socket non blocking
 

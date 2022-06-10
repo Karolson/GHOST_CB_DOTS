@@ -63,6 +63,7 @@ CIncomingJoinPlayer *CGameProtocol::RECEIVE_W3GS_REQJOIN(BYTEARRAY data)
     {
         uint32_t HostCounter = UTIL_ByteArrayToUInt32(data, false, 4);
         BYTEARRAY Name       = UTIL_ExtractCString(data, 19);
+        Name.erase(remove_if(Name.begin(), Name.end(), [](unsigned char c) { return !isprint(c); }), Name.end());
 
         if (!Name.empty() && data.size() >= Name.size() + 30)
         {

@@ -142,15 +142,7 @@ public:
 
     unsigned char GetPID() { return m_PID; }
 
-    //удаляем нестандартные символы
-    std::string GetName() { return stripUnicode(m_Name); }
-    std::string stripUnicode(std::string &str)
-    {
-        str.erase(remove_if(str.begin(), str.end(), [](char c)
-                            { return !isprint(c); }),
-                  str.end());
-        return str;
-    }
+    std::string GetName() { return m_Name; }
 
     BYTEARRAY GetInternalIP() { return m_InternalIP; }
     unsigned int GetNumPings() { return m_Pings.size(); }

@@ -14,10 +14,6 @@ int ceili(float f)
 
 CCurses::CCurses(int nTermWidth, int nTermHeight, bool nSplitView, int nListType)
 {
-#ifdef __PDCURSES__
-    PDC_set_title("GHost++ CursesMod");
-#endif
-
     // Initialize vectors
     SRealmData temp1;
     for (uint32_t i = 0; i < 10; ++i)
@@ -480,7 +476,7 @@ void CCurses::SetAttribute(SWindowData &data, std::string message, int flag, Buf
         break;
     case B_ALL:
     case B_MAIN:
-        if (message.find("error") != (unsigned int)-1)
+        if (message.find("error") != std::string::npos)
         {
             attribute = A_RED;
             break;

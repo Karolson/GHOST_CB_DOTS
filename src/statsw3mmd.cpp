@@ -20,7 +20,9 @@
 
 #include "statsw3mmd.h"
 #include "game_base.h"
+#include "gameplayer.h"
 #include "gameprotocol.h"
+#include "gpsprotocol.h"
 #include "ghost.h"
 #include "ghostdb.h"
 #include "util.h"
@@ -286,13 +288,53 @@ bool CStatsW3MMD::ProcessAction(CIncomingAction *Action)
                                                         if (m_PIDToName.find(PID) == m_PIDToName.end())
                                                             UTIL_Replace(Format, "{" + UTIL_ToString(i) + "}", "PID:" + Tokens[i + 2]);
                                                         else
+                                                        {
                                                             UTIL_Replace(Format, "{" + UTIL_ToString(i) + "}", m_PIDToName[PID]);
+                                                        }
                                                     }
                                                     else
+                                                    {
                                                         UTIL_Replace(Format, "{" + UTIL_ToString(i) + "}", Tokens[i + 2]);
+                                                    }
                                                 }
 
                                                 CONSOLE_Print("[STATSW3MMD: " + m_Game->GetGameName() + "] " + Format);
+
+                                                if (Tokens[1] == "game_started")
+                                                {
+                                                    const auto p1 = std::chrono::system_clock::now();
+                                                    const auto epoch = std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count();
+                                                    std::vector<CGamePlayer *> players = m_Game->GetPlayers();
+                                                    for (std::vector<CGamePlayer *>::iterator i = players.begin(); i != players.end(); i++)
+                                                    {
+                                                        if ((*i)->GetGProxy())
+                                                        {
+                                                            if (m_Game->GetSIDFromPID((*i)->GetPID()) != 5 && m_Game->GetSIDFromPID((*i)->GetPID()) != 11)
+                                                            {
+                                                                (*i)->Send(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_STATE("Defending the Shrine"));
+                                                            }
+                                                            (*i)->Send(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_STARTTIMESTAMP(epoch));
+                                                        }
+                                                    }
+                                                } 
+                                                else if (Tokens[1] == "character_pick")
+                                                {
+                                                    CGamePlayer *player = m_Game->GetPlayerFromSID(std::stoi(Tokens[2]));
+                                                    if (player->GetGProxy())
+                                                    {
+                                                        player->Send(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGEKEY(Tokens[5]));
+                                                        player->Send(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGETEXT(Tokens[3]));
+                                                    }
+                                                }
+                                                else if (Tokens[1] == "random_pick")
+                                                {
+                                                    CGamePlayer *player = m_Game->GetPlayerFromSID(std::stoi(Tokens[2]));
+                                                    if (player->GetGProxy())
+                                                    {
+                                                        player->Send(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGEKEY("random"));
+                                                        player->Send(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGETEXT("Random"));
+                                                    }
+                                                }
                                             }
                                         }
                                     }

@@ -1,4 +1,4 @@
-project('dodsghost', 'cpp', default_options: ['strip=true','cpp_std=c++17','b_vscrt=static_from_buildtype'])
+project('dodsghost', 'cpp', default_options: ['strip=true','cpp_std=c++17','b_vscrt=mtd'])
 
 compiler = meson.get_compiler('cpp')
 

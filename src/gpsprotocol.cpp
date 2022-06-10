@@ -129,6 +129,132 @@ BYTEARRAY CGPSProtocol::SEND_GPSS_REJECT(uint32_t reason)
     return packet;
 }
 
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_STATE(std::string state)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_STATE);
+    packet.push_back(0);
+    packet.push_back(0);
+    packet.push_back(state.size());
+    UTIL_AppendByteArrayFast(packet, state, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_DETAILS(std::string details)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_DETAILS);
+    packet.push_back(0);
+    packet.push_back(0);
+    packet.push_back(details.size());
+    UTIL_AppendByteArrayFast(packet, details, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_STARTTIMESTAMP(uint64_t startTimestamp)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_STARTTIMESTAMP);
+    packet.push_back(0);
+    packet.push_back(0);
+    UTIL_AppendByteArray(packet, startTimestamp, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_ENDTIMESTAMP(uint64_t endTimestamp)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_ENDTIMESTAMP);
+    packet.push_back(0);
+    packet.push_back(0);
+    UTIL_AppendByteArray(packet, endTimestamp, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGEKEY(std::string largeImageKey)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_LARGEIMAGEKEY);
+    packet.push_back(0);
+    packet.push_back(0);
+    packet.push_back(largeImageKey.size());
+    UTIL_AppendByteArrayFast(packet, largeImageKey, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_LARGEIMAGETEXT(std::string largeImageText)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_LARGEIMAGETEXT);
+    packet.push_back(0);
+    packet.push_back(0);
+    packet.push_back(largeImageText.size());
+    UTIL_AppendByteArrayFast(packet, largeImageText, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_SMALLIMAGEKEY(std::string smallImageKey)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_SMALLIMAGEKEY);
+    packet.push_back(0);
+    packet.push_back(0);
+    packet.push_back(smallImageKey.size());
+    UTIL_AppendByteArrayFast(packet, smallImageKey, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_SMALLIMAGETEXT(std::string smallImageText)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_SMALLIMAGETEXT);
+    packet.push_back(0);
+    packet.push_back(0);
+    packet.push_back(smallImageText.size());
+    UTIL_AppendByteArrayFast(packet, smallImageText, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_PARTYSIZE(uint32_t partySize)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_PARTYSIZE);
+    packet.push_back(0);
+    packet.push_back(0);
+    UTIL_AppendByteArray(packet, partySize, false);
+    AssignLength(packet);
+    return packet;
+}
+
+BYTEARRAY CGPSProtocol::SEND_GPSS_DISCORD_PRESENCE_PARTYMAX(uint32_t partyMax)
+{
+    BYTEARRAY packet;
+    packet.push_back(GPS_HEADER_CONSTANT);
+    packet.push_back(GPS_DISCORD_PRESENCE_PARTYMAX);
+    packet.push_back(0);
+    packet.push_back(0);
+    UTIL_AppendByteArray(packet, partyMax, false);
+    AssignLength(packet);
+    return packet;
+}
+
 /////////////////////
 // OTHER FUNCTIONS //
 /////////////////////

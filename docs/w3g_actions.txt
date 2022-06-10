@@ -584,7 +584,7 @@ Note:
   o This action is only present in LAN/Multiplayer games.
 
   o It is  issued for every canceled hero revival - regardless which spot
-    in the "build/revival std::queue" the hero had.
+    in the "build/revival queue" the hero had.
 
   o It is not issued for canceling hero training. There you get the "usual"
     "61 10 40 08 00 0D 00 ..." action sequence.

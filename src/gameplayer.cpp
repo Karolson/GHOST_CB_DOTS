@@ -622,6 +622,11 @@ void CGamePlayer::ProcessPackets()
                     m_GProxy = true;
                     m_Socket->PutBytes(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT(m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions()));
                     CONSOLE_Print("[GAME: " + m_Game->GetGameName() + "] player [" + m_Name + "] is using GProxy++");
+                    
+                    m_Socket->PutBytes(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_STATE("In Lobby"));
+                    m_Socket->PutBytes(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_DETAILS(m_Game->GetGameName()));
+                    m_Socket->PutBytes(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_PARTYSIZE(m_Game->GetNumHumanPlayersFromSlots()));
+                    m_Socket->PutBytes(m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_DISCORD_PRESENCE_PARTYMAX(m_Game->GetSlots().size()));
                 }
                 else
                 {

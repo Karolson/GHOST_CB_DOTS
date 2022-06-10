@@ -17,6 +17,10 @@
    CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 
 */
+#if _MSC_VER >= 1932 // Visual Studio 2022 version 17.2+
+#    pragma comment(linker, "/alternatename:__imp___std_init_once_complete=__imp_InitOnceComplete")
+#    pragma comment(linker, "/alternatename:__imp___std_init_once_begin_initialize=__imp_InitOnceBeginInitialize")
+#endif
 
 #include "ghost.h"
 #include "bnet.h"
@@ -224,7 +228,8 @@ void CONSOLE_RemoveChannelUsers(uint32_t realmId)
 //
 
 int main(int argc, char **argv)
-{
+{   
+    /*
     std::ofstream StatusFile;
     StatusFile.open("online.txt", std::ios::trunc);
     if (!StatusFile.fail())
@@ -235,6 +240,7 @@ int main(int argc, char **argv)
         StatusFile << true << std::endl;
         StatusFile.close();
     }
+    */
 
     gCFGFile = "ghost.cfg";
 
@@ -632,6 +638,10 @@ CGHost::CGHost(CConfig *CFG)
             CONSOLE_Print("[GHOST] unable to get system locale, using default locale of 1033");
 #endif
         }
+
+#ifdef __PDCURSES__
+        PDC_set_title(std::string("GHost++ | " + UserName + " | " + m_AutoHostGameName).c_str());
+#endif
 
         m_BNETs.push_back(new CBNET(this, Server, ServerAlias, BNLSServer, (uint16_t)BNLSPort, (uint32_t)BNLSWardenCookie, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, RootAdmin, m_LANRootAdmin, BNETCommandTrigger[0], HoldFriends, HoldClan, PublicCommands, War3Version, EXEVersion, EXEVersionHash, PasswordHashType, PVPGNRealmName, MaxMessageLength, i));
     }
@@ -1867,7 +1877,7 @@ void CGHost::CreateGame(CMap *map, unsigned char gameState, bool saveGame, std::
 
         if (MapPath1 != MapPath2)
         {
-            CONSOLE_Print("[GHOST] std::filesystem::path mismatch, saved game std::filesystem::path is [" + MapPath1 + "] but map std::filesystem::path is [" + MapPath2 + "]");
+            CONSOLE_Print("[GHOST] path mismatch, saved game path is [" + MapPath1 + "] but map path is [" + MapPath2 + "]");
 
             for (std::vector<CBNET *>::iterator i = m_BNETs.begin(); i != m_BNETs.end(); i++)
             {

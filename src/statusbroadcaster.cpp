@@ -34,7 +34,7 @@ void CStatusBroadcaster::set_fd(fd_set *n_fd, fd_set *n_send_fd, int *n_nfds)
 }
 bool CStatusBroadcaster::StartListen(std::string m_BindAddress)
 {
-    connectSocket = new CTCPServer();
+    connectSocket = new CTCPServer("status");
     if (connectSocket->Listen(m_BindAddress, statusPort))
     {
         CONSOLE_Print("[GHOST][STATUS] listening for Gproxy status connects on port " + UTIL_ToString(statusPort));
@@ -151,7 +151,6 @@ void CStatusBroadcaster::SendName(CBaseGame *game)
 //SLOT
 void CStatusBroadcaster::SendSlot(CBaseGame *game, CTCPStatusBroadcasterSocket *bs)
 {
-
     if (GetTime() - gameSlotsStatusesLastGetTime > 1) //получаем слоты, только если они устарели больше чем 1 сек
     {
         packetSlots = BYTEARRAY();

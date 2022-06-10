@@ -66,6 +66,24 @@ BYTEARRAY UTIL_CreateByteArray(uint32_t i, bool reverse)
         return result;
 }
 
+BYTEARRAY UTIL_CreateByteArray(uint64_t i, bool reverse)
+{
+    BYTEARRAY result;
+    result.push_back((unsigned char)i);
+    result.push_back((unsigned char)(i >> 8));
+    result.push_back((unsigned char)(i >> 16));
+    result.push_back((unsigned char)(i >> 24));
+    result.push_back((unsigned char)(i >> 32));
+    result.push_back((unsigned char)(i >> 40));
+    result.push_back((unsigned char)(i >> 48));
+    result.push_back((unsigned char)(i >> 56));
+
+    if (reverse)
+        return BYTEARRAY(result.rbegin(), result.rend());
+    else
+        return result;
+}
+
 uint16_t UTIL_ByteArrayToUInt16(BYTEARRAY b, bool reverse, unsigned int start)
 {
     if (b.size() < start + 2)
@@ -167,6 +185,11 @@ void UTIL_AppendByteArray(BYTEARRAY &b, uint32_t i, bool reverse)
 {
     UTIL_AppendByteArray(b, UTIL_CreateByteArray(i, reverse));
 }
+
+void UTIL_AppendByteArray(BYTEARRAY &b, uint64_t i, bool reverse)
+{
+    UTIL_AppendByteArray(b, UTIL_CreateByteArray(i, reverse));
+} 
 
 BYTEARRAY UTIL_ExtractCString(BYTEARRAY &b, unsigned int start)
 {

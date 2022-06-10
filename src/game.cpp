@@ -1529,10 +1529,12 @@ bool CGame ::EventPlayerBotCommand(CGamePlayer *player, std::string command, std
                 }
 
                 if (!Pings.empty())
+                {
                     if (HideCommand)
                         SendChat(player, Pings);
                     else
                         SendAllChat(Pings);
+                }
 
                 if (Kicked > 0)
                     SendAllChat(m_GHost->m_Language->KickingPlayersWithPingsGreaterThan(UTIL_ToString(Kicked), UTIL_ToString(KickPing)));

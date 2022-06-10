@@ -129,7 +129,8 @@ void CGHostDBMySQL::CreateThread(CBaseCallable *callable)
 {
     try
     {
-        std::thread Thread(std::ref(*callable));
+        std::thread t = std::thread(std::ref(*callable));
+        t.detach();
     }
     catch (const std::exception &ex)
     {
@@ -138,7 +139,8 @@ void CGHostDBMySQL::CreateThread(CBaseCallable *callable)
 
         try
         {
-            std::thread Thread(std::ref(*callable));
+            std::thread t = std::thread(std::ref(*callable));
+            t.detach();
         }
         catch (const std::exception &ex)
         {

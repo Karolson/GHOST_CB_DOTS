@@ -23,18 +23,81 @@
 #include "includes.h"
 
 #ifdef WIN32
-#include <errno.h>
 #include <winsock2.h>
+#include <errno.h>
 
-#define ESOCKTNOSUPPORT WSAESOCKTNOSUPPORT
-#define EPFNOSUPPORT WSAEPFNOSUPPORT
-#define ESHUTDOWN WSAESHUTDOWN
-#define ETOOMANYREFS WSAETOOMANYREFS
-#define EHOSTDOWN WSAEHOSTDOWN
-#define EUSERS WSAEUSERS
+#undef EADDRINUSE
+#define EADDRINUSE WSAEADDRINUSE
+#undef EADDRNOTAVAIL
+#define EADDRNOTAVAIL WSAEADDRNOTAVAIL
+#undef EAFNOSUPPORT
+#define EAFNOSUPPORT WSAEAFNOSUPPORT
+#undef EALREADY
+#define EALREADY WSAEALREADY
+#undef ECONNABORTED
+#define ECONNABORTED WSAECONNABORTED
+#undef ECONNREFUSED
+#define ECONNREFUSED WSAECONNREFUSED
+#undef ECONNRESET
+#define ECONNRESET WSAECONNRESET
+#undef EDESTADDRREQ
+#define EDESTADDRREQ WSAEDESTADDRREQ
+#undef EDQUOT
 #define EDQUOT WSAEDQUOT
-#define ESTALE WSAESTALE
+#undef EHOSTDOWN
+#define EHOSTDOWN WSAEHOSTDOWN
+#undef EHOSTUNREACH
+#define EHOSTUNREACH WSAEHOSTUNREACH
+#undef EINPROGRESS
+#define EINPROGRESS WSAEINPROGRESS
+#undef EISCONN
+#define EISCONN WSAEISCONN
+#undef ELOOP
+#define ELOOP WSAELOOP
+#undef EMSGSIZE
+#define EMSGSIZE WSAEMSGSIZE
+// #undef ENAMETOOLONG
+// #define ENAMETOOLONG WSAENAMETOOLONG
+#undef ENETDOWN
+#define ENETDOWN WSAENETDOWN
+#undef ENETRESET
+#define ENETRESET WSAENETRESET
+#undef ENETUNREACH
+#define ENETUNREACH WSAENETUNREACH
+#undef ENOBUFS
+#define ENOBUFS WSAENOBUFS
+#undef ENOPROTOOPT
+#define ENOPROTOOPT WSAENOPROTOOPT
+#undef ENOTCONN
+#define ENOTCONN WSAENOTCONN
+// #undef ENOTEMPTY
+// #define ENOTEMPTY WSAENOTEMPTY
+#undef ENOTSOCK
+#define ENOTSOCK WSAENOTSOCK
+#undef EOPNOTSUPP
+#define EOPNOTSUPP WSAEOPNOTSUPP
+#undef EPFNOSUPPORT
+#define EPFNOSUPPORT WSAEPFNOSUPPORT
+#undef EPROTONOSUPPORT
+#define EPROTONOSUPPORT WSAEPROTONOSUPPORT
+#undef EPROTOTYPE
+#define EPROTOTYPE WSAEPROTOTYPE
+#undef EREMOTE
 #define EREMOTE WSAEREMOTE
+#undef ESHUTDOWN
+#define ESHUTDOWN WSAESHUTDOWN
+#undef ESOCKTNOSUPPORT
+#define ESOCKTNOSUPPORT WSAESOCKTNOSUPPORT
+#undef ESTALE
+#define ESTALE WSAESTALE
+#undef ETIMEDOUT
+#define ETIMEDOUT WSAETIMEDOUT
+#undef ETOOMANYREFS
+#define ETOOMANYREFS WSAETOOMANYREFS
+#undef EUSERS
+#define EUSERS WSAEUSERS
+#undef EWOULDBLOCK
+#define EWOULDBLOCK WSAEWOULDBLOCK
 #else
 #include <arpa/inet.h>
 #include <errno.h>
@@ -78,12 +141,13 @@ protected:
     struct sockaddr_in m_SIN;
     bool m_HasError;
     int m_Error;
+    std::string m_Name = "";
 
     ~CSocket();
 
 public:
-    CSocket();
-    CSocket(SOCKET nSocket, struct sockaddr_in nSIN);
+    CSocket(std::string nName = "");
+    CSocket(SOCKET nSocket, struct sockaddr_in nSIN, std::string nName = "");
 
     virtual BYTEARRAY GetPort();
     virtual BYTEARRAY GetIP();
@@ -91,6 +155,7 @@ public:
     virtual bool HasError() { return m_HasError; }
     virtual int GetError() { return m_Error; }
     virtual std::string GetErrorString();
+    virtual std::string GetName();
     virtual void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
     virtual void Allocate(int type);
     virtual void Reset();
@@ -113,8 +178,8 @@ private:
     uint32_t m_LastSend;
 
 public:
-    CTCPSocket();
-    CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN);
+    CTCPSocket(std::string nName = "");
+    CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN, std::string nName = "");
     virtual ~CTCPSocket();
 
     virtual void Reset();
@@ -143,7 +208,7 @@ protected:
     bool m_Connecting;
 
 public:
-    CTCPClient();
+    CTCPClient(std::string nName = "");
     virtual ~CTCPClient();
 
     virtual void Reset();
@@ -160,7 +225,7 @@ public:
 class CTCPServer : public CTCPSocket
 {
 public:
-    CTCPServer();
+    CTCPServer(std::string nName = "");
     virtual ~CTCPServer();
 
     virtual bool Listen(std::string address, uint16_t port);
@@ -177,7 +242,7 @@ protected:
     struct in_addr m_BroadcastTarget;
 
 public:
-    CUDPSocket();
+    CUDPSocket(std::string nName = "");
     virtual ~CUDPSocket();
 
     virtual bool SendTo(struct sockaddr_in sin, BYTEARRAY message);
@@ -194,7 +259,7 @@ public:
 class CUDPServer : public CUDPSocket
 {
 public:
-    CUDPServer();
+    CUDPServer(std::string nName = "");
     virtual ~CUDPServer();
 
     virtual bool Bind(struct sockaddr_in sin);
